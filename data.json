@@ -1,0 +1,14 @@
+[
+    {
+      "id": 1,
+      "message": "Hello, world!"
+    },
+    {
+      "id": 2,
+      "message": "Welcome to the app!"
+    },
+    {
+      "id": 3,
+      "message": "Enjoy your stay!"
+    }
+  ]
