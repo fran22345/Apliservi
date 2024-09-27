@@ -9,18 +9,17 @@ import {
 import {
   GoogleSignin,
   statusCodes,
-  isErrorWithCode,
 } from "@react-native-google-signin/google-signin";
 import Icon from "react-native-vector-icons/FontAwesome";
 import auth from "@react-native-firebase/auth";
 import { useEffect, useState } from "react";
+import { WEB_CLIENT_ID } from "@env";
 
 export default function SignIn() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   GoogleSignin.configure({
-    webClientId:
-      "722497696674-l753klmf24bscuq4kv36ubee49l2ktl8.apps.googleusercontent.com",
+    webClientId: WEB_CLIENT_ID,
   });
 
   // Handle user state changes
@@ -95,7 +94,9 @@ export default function SignIn() {
       <TouchableOpacity
         style={styles.signInButton}
         onPress={() => auth().signOut()}
-      ><Text>Cerrar Secion</Text></TouchableOpacity>
+      >
+        <Text>Cerrar Secion</Text>
+      </TouchableOpacity>
     </View>
   );
 }
