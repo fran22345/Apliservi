@@ -29,13 +29,12 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-firebase/app",
+      "expo-dev-launcher",
+      ["@react-native-google-signin/google-signin"],
       [ 
         "expo-build-properties",
         {
-          "ios": {
-            "useFramworks": "static"
-          }
+          "launchMode": "most-recent"
         }
       ]
     ]

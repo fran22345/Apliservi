@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,20 +12,41 @@ import {
 } from "@react-native-google-signin/google-signin";
 import Icon from "react-native-vector-icons/FontAwesome";
 import auth from "@react-native-firebase/auth";
-import { useEffect, useState } from "react";
 import { WEB_CLIENT_ID } from "@env";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "../../redux/userSlice";
+import { useRouter, Stack } from "expo-router";
 
 export default function SignIn() {
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const [canIn, setCanIn] = useState(false);
+
   GoogleSignin.configure({
     webClientId: WEB_CLIENT_ID,
   });
 
-  // Handle user state changes
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber;
+  }, []);
+
+  useEffect(() => {}, [user]);
+
   function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
+    if (user) {
+      const { displayName, email, photoURL } = user;
+      dispatch(setUser({ displayName, email, photoURL }));
+
+      if (canIn) {
+        router.back();
+        setCanIn(false);
+      }
+    } else {
+      dispatch(clearUser());
+      setCanIn(true);
+    }
   }
 
   const signIn = async () => {
@@ -33,48 +54,52 @@ export default function SignIn() {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-      // Get the users ID token
-      const response = await GoogleSignin.signIn();
-      console.log(response);
+      const userInfo = await GoogleSignin.signIn();
 
-      // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(
-        response.data?.idToken
+        userInfo.data.idToken
       );
 
-      // Sign-in the user with the credential
-      return auth().signInWithCredential(googleCredential);
+      await auth().signInWithCredential(googleCredential);
     } catch (error) {
       if (error.code) {
         switch (error.code) {
           case statusCodes.SIGN_IN_CANCELLED:
-            // user cancelled the sign-in flow
+            console.log("User cancelled the sign-in process");
             break;
           case statusCodes.IN_PROGRESS:
-            // operation (e.g. sign in) is in progress already
+            console.log("Sign-in is in progress");
             break;
           case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            // play services not available or outdated
+            console.log("Play services not available or outdated");
             break;
           default:
-          // some other error happened
+            console.log("Some other error happened", error);
         }
       } else {
-        // an error that's not related to google sign in occurred
+        console.log(
+          "An error occurred that is not related to Google Sign-In",
+          error
+        );
       }
     }
   };
 
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  if (initializing) return null;
+  const handleSignOut = async () => {
+    try {
+      await GoogleSignin.signOut();
+      await auth().signOut();
+      dispatch(clearUser());
+      router.back();
+    } catch (error) {
+      console.log("Error signing out", error);
+    }
+  };
 
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
+        <Stack.Screen options={{ title: "Inicar Secion" }} />
         <TouchableOpacity style={styles.signInButton} onPress={signIn}>
           <Icon
             name="google"
@@ -89,35 +114,34 @@ export default function SignIn() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome {user.email}</Text>
-      <TouchableOpacity
-        style={styles.signInButton}
-        onPress={() => auth().signOut()}
-      >
-        <Text>Cerrar Secion</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ title: user.displayName }} />
+      <View style={styles.centeredView}>
+        <Text style={styles.text}>Hola {user.displayName}!</Text>
+        <TouchableOpacity onPress={handleSignOut}>
+          <Text style={styles.text}>Cerrar Sesion</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  textContainer: {
-    justifyContent: "center",
-    flex: 1,
-    alignItems: "center",
-  },
-  text: {
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f8f8f8",
+  },
+  centeredView: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+  text: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
   },
   signInButton: {
     flexDirection: "row",

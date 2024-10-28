@@ -3,10 +3,23 @@ import { Pressable, StyleSheet } from "react-native";
 import { View, Dimensions, Image } from "react-native";
 import localImage from "../assets/AS.jpg";
 import { Link } from "expo-router";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { WEB_CLIENT_ID } from "@env";
+import { useSelector } from "react-redux";
+
 
 const { height } = Dimensions.get("window");
+GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
 
 const Icon = () => {
+  const user = useSelector((state) => state.user.user);
+
+  
+
+  
+
+
+
   return (
     <View style={Style.content}>
       <View style={Style.publicity}>
@@ -25,19 +38,27 @@ const Icon = () => {
           alt="appointment-reminders"
         />
       </View>
-      <Link href="/views/signin" asChild>
-      <Pressable>
-        <View style={Style.autentication}>
-          <Image
-            style={Style.image}
-            source={{
-              uri: "https://img.icons8.com/material-outlined/24/user-male-circle.png",
-            }}
-            alt="appointment-reminders"
-          />
-        </View>
-      </Pressable>  
-      </Link>
+      {user ? (
+        <Link href="/views/signin" asChild>
+          <Pressable>
+            <Image source={{uri: user.photoURL}} style={Style.image} />
+          </Pressable>
+        </Link>
+      ) : (
+        <Link href="/views/signin" asChild>
+          <Pressable>
+            <View style={Style.autentication}>
+              <Image
+                style={Style.image}
+                source={{
+                  uri: "https://img.icons8.com/material-outlined/24/user-male-circle.png",
+                }}
+                alt="appointment-reminders"
+              />
+            </View>
+          </Pressable>
+        </Link>
+      )}
     </View>
   );
 };

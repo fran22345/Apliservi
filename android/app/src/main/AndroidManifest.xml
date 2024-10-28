@@ -26,6 +26,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="apliservi"/>
         <data android:scheme="com.apliservi1.apliservi1"/>
+        <data android:scheme="exp+apliservi"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
