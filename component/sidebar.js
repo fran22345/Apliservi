@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import React from "react";
 import {
   View,
@@ -8,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const Sidebar = () => {
   return (
@@ -22,13 +23,11 @@ const Sidebar = () => {
         >
           <Text style={styles.buttonText}>boton 1</Text>
         </Pressable>
-        <Pressable
-          style={styles.pressable}
-          onPress={() =>
-            Alert.alert("Botón presionado", "¡Has presionado el botón!")
-          }
-        >
-          <Text style={styles.buttonText}>boton 2</Text>
+
+        <Pressable style={styles.pressable}>
+          <Link href="/views/createService">
+          <Text style={styles.buttonText}>Crer Serv</Text>
+          </Link>
         </Pressable>
         <Pressable
           style={styles.pressable}
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#007BFF",
     alignItems: "center",
     justifyContent: "center",
-    height: height/15,
+    height: height / 15,
     borderColor: "#e0e0e0",
     borderWidth: 0.3,
     flex: 1,

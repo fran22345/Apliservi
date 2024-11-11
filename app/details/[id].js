@@ -1,29 +1,57 @@
-import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, Dimensions, Pressable } from "react-native";
 import Stars from "react-native-stars";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import data from "../../data.json";
 import { useLocalSearchParams } from "expo-router";
-import {Stack} from "expo-router";
+import { Stack } from "expo-router";
+import axios from "axios";
+import { openBrowserAsync } from "expo-web-browser";
 
-const images = {
-  1: require("../../assets/pexels-moose-photos-170195-1587009.jpg"),
-  2: require("../../assets/pexels-olly-712513.jpg"),
-  3: require("../../assets/pexels-olly-834863.jpg"),
-};
 
 const ViewCard = () => {
   const { id } = useLocalSearchParams();
-  const user = data.find((user) => user.id === parseInt(id));
-  
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get("http://10.0.2.2:3000/users/" + id)
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((error) => {
+        setError("User not found");
+        console.error(error);
+      });
+  }, [id]);
+
+  const handlePreferencias = async () => {
+    try {
+      const response = await axios.post(
+        "http://10.0.2.2:3000/crear-preferencia",
+        {
+          title: "mi producto",
+          quantity: 1,
+          unit_price: 10,
+        }
+      );
+
+      const { sandbox_init_point } = response.data.response;
+      await openBrowserAsync(sandbox_init_point);
+    } catch (error) {
+      Alert.alert("Error", "No se pudo crear la preferencia de pago.");
+      console.error(error);
+    }
+  };
+
   if (!user) {
-    return <Text style={styles.error}>User not found</Text>;
+    return <Text style={styles.error}>{error}</Text>;
   }
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: user.nombre +" "+ user.apellido }} />
-      <Image source={images[user.linkFoto]} style={styles.image} />
+      <Stack.Screen options={{ title: user.nombre + " " + user.apellido }} />
+      <Image source={{ uri: user.linkFoto }} style={styles.image} />
       <Text style={styles.name}>
         {user.nombre} {user.apellido}
       </Text>
@@ -32,7 +60,7 @@ const ViewCard = () => {
       </View>
       <Stars
         style={styles.stars}
-        display={user.puntuacion}
+        display={user.score}
         count={5}
         half={false}
         starSize={50}
@@ -63,6 +91,9 @@ const ViewCard = () => {
           </Text>
         ))}
       </View>
+      <Pressable style={styles.pressable} onPress={handlePreferencias}>
+        <Text style={styles.buttonText}>Pago Mp</Text>
+      </Pressable>
     </View>
   );
 };
@@ -126,6 +157,17 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 20,
+  },
+  pressable: {
+    backgroundColor: "#007BFF",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+    width: "100%",
+    borderRadius: 3,
+    borderColor: "#e0e0e0",
+    borderWidth: 0.3,
+    marginTop: 30, 
   },
 });
 

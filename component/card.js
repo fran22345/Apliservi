@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
-import data from "../data.json";
+import axios from "axios";
 
 const Card = () => {
   const [dataState, setDataState] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDataState(data);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [data]);
+    axios
+      .get("http://10.0.2.2:3000/users/")
+      .then((response) => {
+        setDataState(response.data);
+      })
+      .catch((error) => {
+        setError("User not found");
+        console.error(error);
+      });
+  }, []);
 
   return (
     <>
