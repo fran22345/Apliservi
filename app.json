@@ -30,14 +30,23 @@
     "plugins": [
       "expo-router",
       "expo-dev-launcher",
-      ["@react-native-google-signin/google-signin"],
-      [ 
+      [
+        "@react-native-google-signin/google-signin"
+      ],
+      [
         "expo-build-properties",
         {
           "launchMode": "most-recent"
         }
       ]
-    ]
-  
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1bd4bc17-a040-4467-bdad-7704d0e0856b"
+      }
+    }
   }
 }
