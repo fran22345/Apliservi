@@ -8,18 +8,18 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "GOOGLE_SERVICES_JSON": "./GoogleService-Info.plist"
+        "GOOGLE_SERVICES_JSON": "./google-services.json"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "GOOGLE_SERVICES_JSON": "./GoogleService-Info.plist"
+        "GOOGLE_SERVICES_JSON": "./google-services.json"
       }
     },
     "production": {
       "env": {
-        "GOOGLE_SERVICES_JSON": "./GoogleService-Info.plist"
+        "GOOGLE_SERVICES_JSON": "./google-services.json"
       }
     }
   },
