@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.apliservi1.apliservi1"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,6 +25,7 @@
       "package": "com.apliservi1.apliservi1",
       "googleServicesFile": "./google-services.json"
     },
+    "package": "com.yourcompany.myapp",
     "web": {
       "favicon": "./assets/favicon.png"
     },
