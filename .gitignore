@@ -35,8 +35,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # Ignorar archivos de configuración de Google Services
-google-services.json
-GoogleService-Info.plist
+
 
 # Ignorar archivo de clave de depuración
 android/app/debug.keystore

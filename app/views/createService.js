@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Button, Alert } from "react-native";
 import { Stack } from "expo-router";
 import { TextInput } from "react-native-paper";
@@ -13,9 +13,9 @@ const CreateService = () => {
 
   const getCurrentUser = async () => {
     try {
-      await GoogleSignin.configure(); 
-      const currentUser = await GoogleSignin.getCurrentUser(); 
-      
+      await GoogleSignin.configure();
+      const currentUser = await GoogleSignin.getCurrentUser();
+
       setState({ currentUser });
     } catch (error) {
       console.error("Error getting current user", error);
@@ -23,12 +23,12 @@ const CreateService = () => {
   };
 
   useEffect(() => {
-    getCurrentUser();    
+    getCurrentUser();
   }, []);
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("http://10.0.2.2:3000/users", {
+      await axios.post("http://10.0.2.2:3000/users", {
         nombre: state.currentUser.user.givenName,
         apellido: state.currentUser.user.familyName,
         profesion: serviceProfession,

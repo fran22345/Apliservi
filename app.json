@@ -4,11 +4,11 @@
     "slug": "apliservi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/AS.png",
     "userInterfaceStyle": "light",
     "scheme": "apliservi",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/AS.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -25,7 +25,6 @@
       "package": "com.apliservi1.apliservi1",
       "googleServicesFile": "./google-services.json"
     },
-    "package": "com.yourcompany.myapp",
     "web": {
       "favicon": "./assets/favicon.png"
     },

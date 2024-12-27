@@ -58,6 +58,9 @@ const ViewCard = () => {
       <View style={styles.profesion}>
         <Text style={styles.profesionText}>{user.profesion}</Text>
       </View>
+      <Text style={styles.name}>
+        Servicio: ${user.price}
+      </Text>
       <Stars
         style={styles.stars}
         display={user.score}

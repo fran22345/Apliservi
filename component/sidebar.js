@@ -15,13 +15,10 @@ const Sidebar = () => {
   return (
     <View style={styles.view}>
       <View style={styles.row}>
-        <Pressable
-          style={styles.pressable}
-          onPress={() =>
-            Alert.alert("Botón presionado", "¡Has presionado el botón!")
-          }
-        >
-          <Text style={styles.buttonText}>boton 1</Text>
+      <Pressable style={styles.pressable}>
+          <Link href="/views/notification">
+          <Text style={styles.buttonText}>notifi</Text>
+          </Link>
         </Pressable>
 
         <Pressable style={styles.pressable}>
