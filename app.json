@@ -15,15 +15,41 @@
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.apliservi1.apliservi1"
+      "bundleIdentifier": "com.apliservi1.apliservi1",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "permissions": [
+        "NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.apliservi1.apliservi1",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "apliservi",
+              "host": "checkout",
+              "pathPrefix": "exp://192.168.0.7:19000/--/checkout/congrats"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -48,6 +74,9 @@
       "eas": {
         "projectId": "1bd4bc17-a040-4467-bdad-7704d0e0856b"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1bd4bc17-a040-4467-bdad-7704d0e0856b"
     }
   }
 }

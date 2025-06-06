@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import Stars from "react-native-stars";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useLocalSearchParams } from "expo-router";
 import { Stack } from "expo-router";
 import axios from "axios";
 import { openBrowserAsync } from "expo-web-browser";
-
+import { WEB_CLIENT_ID } from "@env";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const ViewCard = () => {
   const { id } = useLocalSearchParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [userInfoId, setUserInfoId] = useState(null);
 
   useEffect(() => {
     axios
@@ -25,18 +27,35 @@ const ViewCard = () => {
       });
   }, [id]);
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+    });
+
+    const getCurrentUser = async () => {
+      const currentUser = GoogleSignin.getCurrentUser();
+      if (currentUser) {
+        setUserInfoId(currentUser.user.id);
+      }
+    };
+
+    getCurrentUser();
+  }, []);
+
   const handlePreferencias = async () => {
     try {
-      const response = await axios.post(
-        "http://10.0.2.2:3000/crear-preferencia",
-        {
-          title: "mi producto",
-          quantity: 1,
-          unit_price: 10,
-        }
-      );
-
+      const requestData = {
+        idBuyer: userInfoId,
+        userId: id,
+        title: "mi producto",
+        quantity: 1,
+        unit_price: 1,
+      };
+  
+      const response = await axios.post("http://10.0.2.2:3000/crear-preferencia", requestData);
+  
       const { sandbox_init_point } = response.data.response;
+  
       await openBrowserAsync(sandbox_init_point);
     } catch (error) {
       Alert.alert("Error", "No se pudo crear la preferencia de pago.");
@@ -58,9 +77,7 @@ const ViewCard = () => {
       <View style={styles.profesion}>
         <Text style={styles.profesionText}>{user.profesion}</Text>
       </View>
-      <Text style={styles.name}>
-        Servicio: ${user.price}
-      </Text>
+      <Text style={styles.name}>Servicio: ${user.price}</Text>
       <Stars
         style={styles.stars}
         display={user.score}
@@ -170,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     borderColor: "#e0e0e0",
     borderWidth: 0.3,
-    marginTop: 30, 
+    marginTop: 30,
   },
 });
 

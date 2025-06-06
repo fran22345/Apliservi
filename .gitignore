@@ -1,4 +1,4 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Learn more: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
 node_modules/
@@ -8,34 +8,40 @@ node_modules/
 dist/
 web-build/
 
-# Native
+# Native folders (ignore if using prebuild only)
+/android
+/ios
+
+
+# Native credentials and keys
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.pem
 
 # Metro
 .metro-health-check*
 
-# debug
+# Debug files
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
 # macOS
 .DS_Store
-*.pem
 
 # local env files
 .env
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 
-# Ignorar archivos de configuración de Google Services
+# Google Services config files
+google-services.json
+GoogleService-Info.plist
 
-
-# Ignorar archivo de clave de depuración
+# Debug keystore
 android/app/debug.keystore

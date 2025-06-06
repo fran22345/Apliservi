@@ -11,7 +11,7 @@ import {
 
 const { height } = Dimensions.get("window");
 
-const Sidebar = () => {
+const Botombar = () => {
   return (
     <View style={styles.view}>
       <View style={styles.row}>
@@ -77,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Sidebar;
+export default Botombar;

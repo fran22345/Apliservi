@@ -3,21 +3,29 @@ import { Pressable, StyleSheet } from "react-native";
 import { View, Dimensions, Image } from "react-native";
 import localImage from "../assets/AS.jpg";
 import { Link } from "expo-router";
+import { useState, useEffect } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { WEB_CLIENT_ID } from "@env";
-import { useSelector } from "react-redux";
-
 
 const { height } = Dimensions.get("window");
-GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
 
 const Icon = () => {
-  const user = useSelector((state) => state.user.user);
-
+  const [user, setUser] = useState(null);
   
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+    });
 
-  
+    const getCurrentUser = async () => {
+      const currentUser = GoogleSignin.getCurrentUser();      
+      if(currentUser) {
+        setUser(currentUser.user);
+      }
+    };
 
+    getCurrentUser();
+  }, []);
 
 
   return (
@@ -29,7 +37,8 @@ const Icon = () => {
           alt="appointment-reminders"
         />
       </View>
-      <View style={Style.notificationIco}>
+      <Link href="/views/notification" asChild>
+      <Pressable style={Style.notificationIco}>
         <Image
           style={Style.image}
           source={{
@@ -37,15 +46,16 @@ const Icon = () => {
           }}
           alt="appointment-reminders"
         />
-      </View>
+      </Pressable>
+      </Link>
       {user ? (
-        <Link href="/views/signin" asChild>
+        <Link href="/views/login" asChild>
           <Pressable>
-            <Image source={{uri: user.photoURL}} style={Style.image} />
+            <Image source={{ uri: user.photo }} style={Style.image} />
           </Pressable>
         </Link>
       ) : (
-        <Link href="/views/signin" asChild>
+        <Link href="/views/login" asChild>
           <Pressable>
             <View style={Style.autentication}>
               <Image

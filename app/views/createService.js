@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { TextInput } from "react-native-paper";
 import axios from "axios";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { Database_url } from "@env";
 
 const CreateService = () => {
   const [serviceProfession, setServiceProfession] = useState("");
@@ -28,7 +29,7 @@ const CreateService = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("http://10.0.2.2:3000/users", {
+      await axios.post(Database_url+"/users", {
         nombre: state.currentUser.user.givenName,
         apellido: state.currentUser.user.familyName,
         profesion: serviceProfession,
