@@ -8,9 +8,10 @@ const Card = () => {
 
   useEffect(() => {
     axios
-      .get("http://10.0.2.2:3000/users/")
+      .get("http://10.0.2.2:3000/services/")
       .then((response) => {
         setDataState(response.data);
+        
       })
       .catch((error) => {
         setError("User not found");
@@ -24,7 +25,7 @@ const Card = () => {
         dataState.map((item, index) => (
           <Link key={index} href={{
             pathname: '/details/[id]',
-            params: { id: item.id },
+            params: { id: item.userId },
           }} asChild>
             <Pressable style={styles.item}>
               <Text style={styles.text}>{item.nombre +": "+item.profesion}</Text>

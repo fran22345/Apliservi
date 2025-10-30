@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, Button } from "react-native";
-import { WEB_CLIENT_ID, Database_url } from "@env";
+import { View, Text, Image, StyleSheet, Button, Platform } from "react-native";
+import { WEB_CLIENT_ID, Database_URL } from "@env";
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -8,85 +8,98 @@ import {
 } from "@react-native-google-signin/google-signin";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import axios from "axios";
+import Constants from "expo-constants"
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  //if (Device.isDevice) { habilitar esto en produccion
+  if (true) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      console.log('Permission not granted to get push token for push notification!');
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      console.log('Project ID not found');
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      
+      return pushTokenString;
+    } catch (e) {
+      console.log(`${e}`);
+    }
+  } else {
+    console.log('Must use physical device for push notifications');
+  }
+}
+
+
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState(null);
 
+  const getCurrentUser = async () => {
+    const currentUser = GoogleSignin.getCurrentUser();
+    if (currentUser) {
+      setUserInfo(currentUser);
+      
+    }
+  };
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: WEB_CLIENT_ID,
     });
-
-    const getCurrentUser = async () => {
-      const currentUser = GoogleSignin.getCurrentUser();
-      if (currentUser) {
-        setUserInfo(currentUser);
-      }
-    };
-
-    const registerForPushNotifications = async () => {
-      if (Device.isDevice) {
-        const { status: existingStatus } =
-          await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-        if (finalStatus !== "granted") {
-          Alert.alert(
-            "Error",
-            "No se pudo obtener permisos para notificaciones."
-          );
-          return;
-        }
-        const token = (await Notifications.getExpoPushTokenAsync()).data;
-        setExpoPushToken(token);
-
-        await savePushTokenToDatabase(token);
-      } else {
-        Alert.alert(
-          "Error",
-          "Las notificaciones push solo funcionan en dispositivos físicos."
-        );
-      }
-    };
-
     getCurrentUser();
-    registerForPushNotifications();
   }, []);
 
-  const savePushTokenToDatabase = async (token) => {
-    try {
-      const response = await fetch(Database_url+"/save-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-      if (!response.ok) {
-        throw new Error("Error al guardar el token en la base de datos.");
-      }
-    } catch (error) {
-      console.error("Error al guardar el token:", error);
-    }
-  };
 
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signIn();      
       setUserInfo(userInfo.data);
+      const expoPushToken = await registerForPushNotificationsAsync();
+      await axios.post(Database_URL + "/users", {
+        googleId: userInfo.data.user.id,
+        nombre: userInfo.data.user.givenName,
+        apellido: userInfo.data.user.familyName,
+        linkFoto: userInfo.data.user.photo,
+        expoPushToken: expoPushToken,
+        email: userInfo.data.user.email
+      });
+
     } catch (error) {
+      console.log("Error en signIn:", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
+        console.log("Usuario canceló login");
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
+        console.log("Sign-in en progreso");
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
+        console.log("Play Services no disponible");
       } else {
-        // some other error happened
+        console.log("Otro error:", error);
       }
     }
   };

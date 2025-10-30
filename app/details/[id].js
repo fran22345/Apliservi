@@ -17,9 +17,9 @@ const ViewCard = () => {
 
   useEffect(() => {
     axios
-      .get("http://10.0.2.2:3000/users/" + id)
+      .get("http://10.0.2.2:3000/services/" + id)
       .then((response) => {
-        setUser(response.data);
+        setUser(response.data);        
       })
       .catch((error) => {
         setError("User not found");
@@ -51,11 +51,11 @@ const ViewCard = () => {
         quantity: 1,
         unit_price: 1,
       };
-  
+
       const response = await axios.post("http://10.0.2.2:3000/crear-preferencia", requestData);
-  
+
       const { sandbox_init_point } = response.data.response;
-  
+
       await openBrowserAsync(sandbox_init_point);
     } catch (error) {
       Alert.alert("Error", "No se pudo crear la preferencia de pago.");
@@ -105,7 +105,7 @@ const ViewCard = () => {
         }
       />
       <View style={styles.messagesContainer}>
-        {user.messages.map((msg) => (
+        {user?.messages?.map((msg) => (
           <Text key={msg.id} style={styles.message}>
             {msg.message}
           </Text>

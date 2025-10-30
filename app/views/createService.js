@@ -4,38 +4,55 @@ import { Stack } from "expo-router";
 import { TextInput } from "react-native-paper";
 import axios from "axios";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { Database_url } from "@env";
+import { Database_URL } from "@env";
 
 const CreateService = () => {
   const [serviceProfession, setServiceProfession] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
   const [servicePrice, setServicePrice] = useState("");
   const [state, setState] = useState({ currentUser: null });
+  const [userState, setUserState] = useState("");
 
   const getCurrentUser = async () => {
-    try {
-      await GoogleSignin.configure();
-      const currentUser = await GoogleSignin.getCurrentUser();
+    const currentUser = GoogleSignin.getCurrentUser();
+    setState({ currentUser });
 
-      setState({ currentUser });
-    } catch (error) {
-      console.error("Error getting current user", error);
-    }
   };
 
-  useEffect(() => {
-    getCurrentUser();
-  }, []);
+  const dbUser = async () => {
+    const user = await axios.get(Database_URL + "/users/" + state.currentUser.user.id);
+    setUserState(user.data.id)
+    console.log(user.data);
+    
+  };
+
+useEffect(() => {
+  const fetchUser = async () => {
+    await getCurrentUser();
+  };
+  fetchUser();
+}, []);
+
+useEffect(() => {
+  if (state.currentUser) {
+    dbUser();
+  }
+}, [state.currentUser]);
+
+
+
 
   const handleSubmit = async () => {
     try {
-      await axios.post(Database_url+"/users", {
+      await axios.post(Database_URL + "/services", {
         nombre: state.currentUser.user.givenName,
         apellido: state.currentUser.user.familyName,
         profesion: serviceProfession,
         linkFoto: state.currentUser.user.photo,
         description: serviceDescription,
         price: parseFloat(servicePrice),
+        googleId: state.currentUser.user.id,
+        userId: userState,
       });
       Alert.alert("Éxito", "Servicio creado exitosamente");
     } catch (error) {
