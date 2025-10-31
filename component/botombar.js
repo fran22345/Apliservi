@@ -1,5 +1,4 @@
-import { Link } from "expo-router";
-import React from "react";
+import { useSafeNavigation } from "../hooks/navigation";
 import {
   View,
   Text,
@@ -12,34 +11,29 @@ import {
 const { height } = Dimensions.get("window");
 
 const Botombar = () => {
+  const safeNavigate = useSafeNavigation();
   return (
     <View style={styles.view}>
       <View style={styles.row}>
-      <Pressable style={styles.pressable}>
-          <Link href="/views/notification">
-          <Text style={styles.buttonText}>notifi</Text>
-          </Link>
+        <Pressable
+          style={styles.pressable}
+          onPress={() => safeNavigate("/views/homeScreen", true)}>
+          <Text style={styles.buttonText}>Home</Text>
         </Pressable>
 
-        <Pressable style={styles.pressable}>
-          <Link href="/views/createService">
+        <Pressable
+          style={styles.pressable}
+          onPress={() => safeNavigate("/views/createService", true)}>
           <Text style={styles.buttonText}>Crer Serv</Text>
-          </Link>
         </Pressable>
         <Pressable
           style={styles.pressable}
-          onPress={() =>
-            Alert.alert("Botón presionado", "¡Has presionado el botón!")
-          }
-        >
+          onPress={() => safeNavigate("/views/homeScreen", true)}>
           <Text style={styles.buttonText}>boton 3</Text>
         </Pressable>
         <Pressable
           style={styles.pressable}
-          onPress={() =>
-            Alert.alert("Botón presionado", "¡Has presionado el botón!")
-          }
-        >
+          onPress={() => safeNavigate("/views/homeScreen", true)}>
           <Text style={styles.buttonText}>boton 4</Text>
         </Pressable>
       </View>

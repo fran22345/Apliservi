@@ -5,25 +5,45 @@ import localImage from "../assets/AS.jpg";
 import { Link } from "expo-router";
 import { useState, useEffect } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { WEB_CLIENT_ID } from "@env";
+import { WEB_CLIENT_ID, Database_URL } from "@env";
+import axios from "axios";
 
 const { height } = Dimensions.get("window");
 
 const Icon = () => {
   const [user, setUser] = useState(null);
-  
+  const [notifications, setNotifications] = useState(false);
+
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: WEB_CLIENT_ID,
     });
 
     const getCurrentUser = async () => {
-      const currentUser = GoogleSignin.getCurrentUser();      
-      if(currentUser) {
+      const currentUser = GoogleSignin.getCurrentUser();
+      if (currentUser) {
         setUser(currentUser.user);
       }
     };
 
+    const fetchNotifications = async () => {
+      try {
+
+        if (!user) return;
+        const response = await axios.get(`${Database_URL}/notifRequest`, {
+          params: { googleId: user.id },
+        });
+
+        if (!response.data.title) {
+          setNotifications(true);
+        } else {
+          setNotifications(false)
+        }
+      } catch (error) {
+        console.log("Error al obtener notificaciones:", error);
+      }
+    };
+    fetchNotifications()
     getCurrentUser();
   }, []);
 
@@ -37,16 +57,19 @@ const Icon = () => {
           alt="appointment-reminders"
         />
       </View>
-      <Link href="/views/notification" asChild>
-      <Pressable style={Style.notificationIco}>
-        <Image
-          style={Style.image}
-          source={{
-            uri: "https://img.icons8.com/fluency-systems-regular/50/appointment-reminders--v1.png",
-          }}
-          alt="appointment-reminders"
-        />
-      </Pressable>
+      <Link href="/views/notifBell" asChild>
+        <Pressable style={Style.notificationIco}>
+          <Image
+            style={Style.image}
+            source={
+              notifications
+                ? require("../assets/icons8-recordatorios-de-citas-48.png")
+                : require("../assets/icons8-recordatorios-de-citas-llenas-48.png")
+            }
+            alt="appointment-reminders"
+          />
+          {notifications && <View style={Style.badge} />}
+        </Pressable>
       </Link>
       {user ? (
         <Link href="/views/login" asChild>
@@ -97,6 +120,17 @@ const Style = StyleSheet.create({
   },
   autentication: {
     flex: 0,
+  },
+  badge: {
+    position: "absolute",
+    top: 10,
+    right: 25,
+    width: 10,
+    height: 10,
+    borderRadius: 10, 
+    backgroundColor: "red",
+    borderWidth: 1,
+    borderColor: "red", 
   },
 });
 export default Icon;

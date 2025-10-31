@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -7,7 +6,6 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import * as Notifications from "expo-notifications";
 import Icon from "../../component/iconBar";
 import Body from "../../component/body";
 import Botombar from "../../component/botombar";

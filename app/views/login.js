@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, Button, Platform } from "react-native";
 import { WEB_CLIENT_ID, Database_URL } from "@env";
 import {
@@ -10,6 +10,7 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import axios from "axios";
 import Constants from "expo-constants"
+import { router } from "expo-router";
 
 async function registerForPushNotificationsAsync() {
   if (Platform.OS === 'android') {
@@ -45,7 +46,7 @@ async function registerForPushNotificationsAsync() {
         })
       ).data;
       console.log(pushTokenString);
-      
+
       return pushTokenString;
     } catch (e) {
       console.log(`${e}`);
@@ -64,7 +65,7 @@ const Login = () => {
     const currentUser = GoogleSignin.getCurrentUser();
     if (currentUser) {
       setUserInfo(currentUser);
-      
+
     }
   };
   useEffect(() => {
@@ -78,7 +79,7 @@ const Login = () => {
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();      
+      const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo.data);
       const expoPushToken = await registerForPushNotificationsAsync();
       await axios.post(Database_URL + "/users", {
@@ -89,6 +90,7 @@ const Login = () => {
         expoPushToken: expoPushToken,
         email: userInfo.data.user.email
       });
+      router.replace("/views/homeScreen");
 
     } catch (error) {
       console.log("Error en signIn:", error);
