@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Dimensions,
   Pressable,
-  Alert,
 } from "react-native";
 
 const { height } = Dimensions.get("window");
@@ -20,7 +19,6 @@ const Botombar = () => {
           onPress={() => safeNavigate("/views/homeScreen", true)}>
           <Text style={styles.buttonText}>Home</Text>
         </Pressable>
-
         <Pressable
           style={styles.pressable}
           onPress={() => safeNavigate("/views/createService", true)}>
@@ -28,13 +26,13 @@ const Botombar = () => {
         </Pressable>
         <Pressable
           style={styles.pressable}
-          onPress={() => safeNavigate("/views/homeScreen", true)}>
-          <Text style={styles.buttonText}>boton 3</Text>
+          onPress={() => safeNavigate("/views/serviciosActivos", true)}>
+          <Text style={styles.buttonText}>Prestaciones</Text>
         </Pressable>
         <Pressable
           style={styles.pressable}
-          onPress={() => safeNavigate("/views/homeScreen", true)}>
-          <Text style={styles.buttonText}>boton 4</Text>
+          onPress={() => safeNavigate("/views/serviciosContratados", true)}>
+          <Text style={styles.buttonText}>Contratos</Text>
         </Pressable>
       </View>
     </View>
@@ -48,8 +46,10 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   view: {
-    flexDirection: "row",
-    width: "100%",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   row: {
     flexDirection: "row",

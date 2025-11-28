@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Button, Alert } from "react-native";
+import { View, StyleSheet, Button, Alert, Text } from "react-native";
 import { Stack } from "expo-router";
 import { TextInput } from "react-native-paper";
 import axios from "axios";
@@ -22,22 +22,21 @@ const CreateService = () => {
   const dbUser = async () => {
     const user = await axios.get(Database_URL + "/users/" + state.currentUser.user.id);
     setUserState(user.data.id)
-    console.log(user.data);
-    
+
   };
 
-useEffect(() => {
-  const fetchUser = async () => {
-    await getCurrentUser();
-  };
-  fetchUser();
-}, []);
+  useEffect(() => {
+    const fetchUser = async () => {
+      await getCurrentUser();
+    };
+    fetchUser();
+  }, []);
 
-useEffect(() => {
-  if (state.currentUser) {
-    dbUser();
-  }
-}, [state.currentUser]);
+  useEffect(() => {
+    if (state.currentUser) {
+      dbUser();
+    }
+  }, [state.currentUser]);
 
 
 
@@ -63,6 +62,7 @@ useEffect(() => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Crear Servicio</Text>
       <Stack.Screen options={{ title: "Crear Servicio" }} />
       <TextInput
         label="Profesión"
@@ -96,6 +96,14 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 20,
+  },
+  title: {
+    marginTop: 20,
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 30,
+    textAlign: "center",
   },
 });
 

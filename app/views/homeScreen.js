@@ -3,12 +3,9 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Platform,
-  Alert,
 } from "react-native";
 import Icon from "../../component/iconBar";
 import Body from "../../component/body";
-import Botombar from "../../component/botombar";
 
 const HomeScreen = () => {
   return (
@@ -18,7 +15,6 @@ const HomeScreen = () => {
         <Body />
         <StatusBar />
       </ScrollView>
-      <Botombar />
     </View>
   );
 };

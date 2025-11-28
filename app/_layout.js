@@ -1,31 +1,48 @@
 import { useEffect, useState } from "react";
-import { Slot, Stack, router } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import { Slot, Redirect, useSegments } from "expo-router";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import Botombar from "../component/botombar";
 
 export default function Layout() {
+  const segments = useSegments();
+  const isAuthRoute = segments[0] === "views";
+
   const [checking, setChecking] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkUser = async () => {
+    const checkUser = () => {
       try {
-        const currentUser = await GoogleSignin.getCurrentUser();
+        const currentUser = GoogleSignin.getCurrentUser();
         setUser(currentUser);
-        if (!currentUser) {
-          router.replace("/views/login"); // redirige si no hay sesión
-        }
       } catch (error) {
         console.error("Error al chequear sesión:", error);
-        router.replace("/views/login");
+      } finally {
+        setChecking(false);
       }
     };
 
-    checkUser();
-  }, []);
+    if (!isAuthRoute) checkUser();
+    else setChecking(false);
+  }, [isAuthRoute]);
 
-  // Mientras verificamos → renderizamos Stack vacío para evitar errores
-  if (checking) return <Stack screenOptions={{ headerShown: false }} />;
+  if (checking) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
-  // Si hay usuario → renderizamos las pantallas hijas
-  return user ? <Slot /> : null;
+  if (!isAuthRoute && !user) {
+    return <Redirect href="/views/login" />;
+  }
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Slot />
+      <Botombar />
+    </View>
+  );
 }

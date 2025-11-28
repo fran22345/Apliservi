@@ -6,7 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Stack } from "expo-router";
 import axios from "axios";
 import { openBrowserAsync } from "expo-web-browser";
-import { WEB_CLIENT_ID } from "@env";
+import { WEB_CLIENT_ID, Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const ViewCard = () => {
@@ -17,9 +17,9 @@ const ViewCard = () => {
 
   useEffect(() => {
     axios
-      .get("http://10.0.2.2:3000/services/" + id)
+      .get(`${Database_URL}/services/` + id)
       .then((response) => {
-        setUser(response.data);        
+        setUser(response.data);
       })
       .catch((error) => {
         setError("User not found");
@@ -38,7 +38,8 @@ const ViewCard = () => {
         setUserInfoId(currentUser.user.id);
       }
     };
-
+    //verificar que existe relacion activa
+    //si existe relacion activa ACEPTADA habilitar el boton de pago
     getCurrentUser();
   }, []);
 
@@ -47,12 +48,12 @@ const ViewCard = () => {
       const requestData = {
         idBuyer: userInfoId,
         userId: id,
-        title: "mi producto",
+        description: user.description,
         quantity: 1,
         unit_price: 1,
       };
 
-      const response = await axios.post("http://10.0.2.2:3000/crear-preferencia", requestData);
+      const response = await axios.post(`${Database_URL}/crear-preferencia`, requestData);
 
       const { sandbox_init_point } = response.data.response;
 

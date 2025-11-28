@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import axios from "axios";
