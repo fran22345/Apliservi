@@ -14,10 +14,9 @@ const Icon = () => {
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState(false);
 
+
   useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: WEB_CLIENT_ID,
-    });
+    GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
 
     const getCurrentUser = async () => {
       const currentUser = GoogleSignin.getCurrentUser();
@@ -26,10 +25,15 @@ const Icon = () => {
       }
     };
 
+    getCurrentUser();
+  }, []);
+
+
+  useEffect(() => {
+    if (!user) return;
+
     const fetchNotifications = async () => {
       try {
-
-        if (!user) return;
         const response = await axios.get(`${Database_URL}/notifRequest`, {
           params: { googleId: user.id },
         });
@@ -37,15 +41,17 @@ const Icon = () => {
         if (!response.data.title) {
           setNotifications(true);
         } else {
-          setNotifications(false)
+          setNotifications(false);
         }
       } catch (error) {
         console.log("Error al obtener notificaciones:", error);
       }
     };
-    fetchNotifications()
-    getCurrentUser();
-  }, []);
+
+    fetchNotifications();
+  }, [user]); 
+
+
 
 
   return (
@@ -127,10 +133,10 @@ const Style = StyleSheet.create({
     right: 25,
     width: 10,
     height: 10,
-    borderRadius: 10, 
+    borderRadius: 10,
     backgroundColor: "red",
     borderWidth: 1,
-    borderColor: "red", 
+    borderColor: "red",
   },
 });
 export default Icon;

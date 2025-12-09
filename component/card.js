@@ -25,7 +25,7 @@ const Card = () => {
         dataState.map((item, index) => (
           <Link key={index} href={{
             pathname: '/details/[id]',
-            params: { id: item.userId },
+            params: { id: item.id },
           }} asChild>
             <Pressable style={styles.item}>
               <Text style={styles.text}>{item.nombre +": "+item.profesion}</Text>

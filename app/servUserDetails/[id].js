@@ -15,8 +15,8 @@ export default function ServicioActivo() {
     const fetchServicio = async () => {
       try {
         const res = await axios.get(`${Database_URL}/servicioActivoUser/${id}`);
-        const buyerRes = await axios.get(`${Database_URL}/users/${res.data.idBuyer}`);
-        
+        const buyerRes = await axios.get(`${Database_URL}/users/buyerid/${res.data.idBuyer}`);
+          
         setBuyer(buyerRes.data);
         setServicio(res.data);
       } catch (err) {
@@ -39,9 +39,9 @@ export default function ServicioActivo() {
           text: "Sí, concluir",
           onPress: async () => {
             try {
-              await axios.post(`${Database_URL}/servicioConcluido`, {
+              await axios.put(`${Database_URL}/servicioConcluido`, {
                 servId: servicio.id,
-                buyerId: servicio.idBuyer
+                buyerId: buyer.id
               });
 
               Alert.alert(
@@ -100,10 +100,12 @@ export default function ServicioActivo() {
           <Text style={styles.value}>{buyer.nombre + " " + buyer.apellido}</Text>
         </View>
 
-        {/* BOTÓN PARA CONCLUIR */}
-        <Pressable style={styles.doneButton} onPress={handleConcluir}>
-          <Text style={styles.doneText}>Concluir Servicio</Text>
-        </Pressable>
+        {servicio.status == "finalized" ? null :
+          <Pressable style={styles.doneButton} onPress={handleConcluir}>
+            <Text style={styles.doneText}>Concluir Servicio</Text>
+          </Pressable>
+        }
+
 
       </View>
     </View>
@@ -156,7 +158,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // 🔥 Botón concluir
   doneButton: {
     marginTop: 20,
     backgroundColor: "#4CAF50",

@@ -15,13 +15,25 @@ export default function serviciosActivos() {
       try {
         const currentUser = GoogleSignin.getCurrentUser();
         if (!currentUser?.user?.id) return;
-        const user = await axios.get(`${Database_URL}/users/${currentUser.user.id}`);
-        if (user) setUser(user.data);
+
+        // 1️⃣ Buscar el usuario en tu DB usando googleId
+        const userRes = await axios.get(`${Database_URL}/users/${currentUser.user.id}`);
+        const userDB = userRes.data;
+
+        if (!userDB) {
+          console.log("Usuario no encontrado en DB");
+          return;
+        }
+
+        setUser(userDB);
+
+        // 2️⃣ Ahora sí pedimos los servicios con el UUID real
         const response = await axios.get(`${Database_URL}/serviciosActivosBuyer`, {
-          params: { userId: user.data.id }
+          params: { idBuyer: userDB.id }
         });
 
         setServicios(response.data || []);
+
       } catch (error) {
         console.log("Error al obtener servicios:", error);
       } finally {
@@ -33,6 +45,7 @@ export default function serviciosActivos() {
   }, []);
 
 
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -42,16 +55,16 @@ export default function serviciosActivos() {
     );
   }
 
-  
+
   const renderedCards = servicios.map((serv, index) => (
 
     <Link key={index} style={styles.card} href={{
-      pathname: '/serDetails/[id]',
-      params: { 
-        id: user.id,
-       }
+      pathname: '/servBuyerDetails/[id]',
+      params: {
+        id: serv.id,
+      }
     }}>
-      <Text style={styles.title}>{serv.description+" "}</Text>
+      <Text style={styles.title}>{serv.description + " "}</Text>
       <Text style={styles.body}>Estado: {serv.status}</Text>
     </Link>
 

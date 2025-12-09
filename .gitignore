@@ -40,8 +40,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # Google Services config files
-GoogleService-Info.plist
-google-services.json
+
 
 # Debug keystore
 android/app/debug.keystore

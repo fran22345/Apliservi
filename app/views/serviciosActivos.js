@@ -1,83 +1,160 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Link } from "expo-router";
 
-export default function serviciosActivos() {
+export default function ServiciosActivos() {
   const [servicios, setServicios] = useState([]);
+  const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState([])
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchServActiv = async () => {
+    const fetchData = async () => {
       try {
         const currentUser = GoogleSignin.getCurrentUser();
         if (!currentUser?.user?.id) return;
-        const user = await axios.get(`${Database_URL}/users/${currentUser.user.id}`);
-        if (user) setUser(user.data);
-        const response = await axios.get(`${Database_URL}/serviciosActivos`, {
-          params: { userId: user.data.id }
+
+        // Traer usuario desde DB
+        const userRes = await axios.get(
+          `${Database_URL}/users/${currentUser.user.id}`
+        );
+        setUser(userRes.data);
+
+        // Traer servicios activos
+        const servRes = await axios.get(`${Database_URL}/serviciosActivos`, {
+          params: { userId: userRes.data.id },
+        });
+        setServicios(servRes.data || []);
+
+        // Traer pedidos de disponibilidad
+        const availRes = await axios.get(`${Database_URL}/availability`, {
+          params: { userId: userRes.data.id },
         });
 
-        setServicios(response.data || []);
+        // -----------------------
+        // ELIMINAR DUPLICADOS
+        // -----------------------
+        const uniqueAvailability = [];
+        const seen = new Set();
+
+        availRes.data.forEach((a) => {
+          const key = `${a.buyerId}-${a.serviceId}-${a.status}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueAvailability.push(a);
+          }
+        });
+
+        setAvailability(uniqueAvailability);
       } catch (error) {
-        console.log("Error al obtener servicios:", error);
+        console.log("Error al obtener servicios o availability:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchServActiv();
+    fetchData();
   }, []);
 
-
+  // ----------------------------------------
+  // Loading screen
+  // ----------------------------------------
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Cargando servicios...</Text>
+        <Text style={styles.loadingText}>Cargando datos...</Text>
       </View>
     );
   }
 
-  
-  const renderedCards = servicios.map((serv, index) => (
+  if (!user) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.loadingText}>No se pudo cargar el usuario.</Text>
+      </View>
+    );
+  }
 
-    <Link key={index} style={styles.card} href={{
-      pathname: '/servUserDetails/[id]',
-      params: { 
-        id: user.id,
-       }
-    }}>
-      <Text style={styles.title}>{serv.description+" "}</Text>
+  // ----------------------------------------
+  // Render servicios activos
+  // ----------------------------------------
+  const renderedServicios = servicios.map((serv) => (
+    <Link
+      key={`serv-${serv.id}`}
+      style={styles.card}
+      href={{
+        pathname: "/servUserDetails/[id]",
+        params: {
+          id: serv.id,
+          userId: user.id,
+        },
+      }}
+    >
+      <Text style={styles.title}>{serv.description}</Text>
       <Text style={styles.body}>Estado: {serv.status}</Text>
     </Link>
-
   ));
 
+  // ----------------------------------------
+  // Render availability filtrado
+  // ----------------------------------------
+  const renderedAvailability = availability.map((a) => (
+    <Link
+      key={`avail-${a.id}`}
+      style={styles.card}
+      href={{
+        pathname: "/availabilityDetails/[id]",
+        params: {
+          id: a.id,
+          userId: user.id,
+          buyerId: a.buyerId,
+          status: a.status,
+        },
+      }}
+    >
+      <Text style={styles.title}>Consulta de disponibilidad</Text>
+      <Text style={styles.body}>Solicitado por: {a.buyerId}</Text>
+      <Text style={styles.body}>Estado: {a.status}</Text>
+    </Link>
+  ));
 
-
+  // ----------------------------------------
+  // Render principal
+  // ----------------------------------------
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Servicios activos */}
       <Text style={styles.title1}>Servicios prestados</Text>
-      <ScrollView contentContainerStyle={styles.container}>
-        {renderedCards}
-      </ScrollView>
+      {renderedServicios.length ? (
+        renderedServicios
+      ) : (
+        <Text style={styles.emptyText}>No tenés servicios activos.</Text>
+      )}
+
+      {/* Pedidos de disponibilidad */}
+      <Text style={styles.title1}>Pedidos de disponibilidad</Text>
+      {renderedAvailability.length ? (
+        renderedAvailability
+      ) : (
+        <Text style={styles.emptyText}>No tenés pedidos de disponibilidad.</Text>
+      )}
     </ScrollView>
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    justifyContent: "space-between",
+    padding: 12,
     backgroundColor: "#f9f9f9",
   },
   center: {
@@ -89,71 +166,37 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#555",
   },
-  emptyText: {
-    fontSize: 16,
-    color: "#888",
-    marginTop: 20,
+  title1: {
+    marginTop: 25,
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+    textAlign: "center",
   },
   card: {
     width: "100%",
     backgroundColor: "#fff",
     padding: 15,
     borderRadius: 12,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
-    marginBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#222",
-  },
-  cardBody: {
-    fontSize: 15,
-    color: "#555",
-    marginTop: 4,
-  },
-  cardDate: {
-    fontSize: 12,
-    color: "#999",
-    marginTop: 6,
-    textAlign: "right",
-  },
-  title1: {
-    marginTop: 20,
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 10,
-    marginVertical: 8,
-    borderRadius: 10,
-    position: "relative", // permite posicionar el botón dentro
-  },
-  deleteButton: {
-    position: "absolute",
-    top: 30,
-    left: 350,
-    padding: 5,
-    borderRadius: 5,
-    backgroundColor: "#f44", // rojo claro
-  },
-  deleteText: {
-    color: "white",
-    fontWeight: "bold",
+    elevation: 3,
   },
   title: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
-    marginTop: 25, // deja espacio para la X
+    marginBottom: 5,
   },
   body: {
     fontSize: 14,
+    color: "#555",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#777",
+    marginBottom: 20,
   },
 });
