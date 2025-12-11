@@ -74,7 +74,7 @@
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/1bd4bc17-a040-4467-bdad-7704d0e0856b"
+      "enabled": false
     }
   }
 }
