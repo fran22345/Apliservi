@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { View, StyleSheet, Button, Alert, Text } from "react-native";
 import { Stack } from "expo-router";
 import { TextInput } from "react-native-paper";
 import axios from "axios";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { Database_URL } from "@env";
+
 
 const CreateService = () => {
   const [serviceProfession, setServiceProfession] = useState("");
@@ -20,7 +20,7 @@ const CreateService = () => {
   };
 
   const dbUser = async () => {
-    const user = await axios.get(Database_URL + "/users/" + state.currentUser.user.id);
+    const user = await axios.get(process.env.EXPO_PUBLIC_DATABASE_URL + "/users/" + state.currentUser.user.id);
     setUserState(user.data.id)
 
   };
@@ -43,7 +43,7 @@ const CreateService = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(Database_URL + "/services", {
+      await axios.post(process.env.EXPO_PUBLIC_DATABASE_URL + "/services", {
         nombre: state.currentUser.user.givenName,
         apellido: state.currentUser.user.familyName,
         profesion: serviceProfession,

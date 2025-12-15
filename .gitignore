@@ -34,13 +34,13 @@ yarn-error.*
 .DS_Store
 
 # local env files
-
+.env
 
 # TypeScript
 *.tsbuildinfo
 
 # Google Services config files
-
+google-services
 
 # Debug keystore
 android/app/debug.keystore

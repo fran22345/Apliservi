@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Pressable } from "react-native";
-import { Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export default function NotifBell() {
@@ -14,7 +13,7 @@ export default function NotifBell() {
                 const currentUser = GoogleSignin.getCurrentUser();
                 if (!currentUser?.user?.id) return;
 
-                const response = await axios.get(`${Database_URL}/notifRequest`, {
+                const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifRequest`, {
                     params: { googleId: currentUser.user.id },
                 });
 
@@ -34,12 +33,12 @@ export default function NotifBell() {
             const currentUser = GoogleSignin.getCurrentUser();
             if (!currentUser?.user?.id) return;
 
-            const response = await axios.get(`${Database_URL}/notifRequest`, {
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifRequest`, {
                 params: { googleId: currentUser.user.id },
             });
 
             if (response.data) {
-                await axios.post(`${Database_URL}/notifErase`, {
+                await axios.post(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifErase`, {
                     id: event
                 })
                 setNotifications((prev) => prev.filter((n) => n.id !== event));

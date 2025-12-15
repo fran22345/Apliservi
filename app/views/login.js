@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, Button, Platform } from "react-native";
-import { WEB_CLIENT_ID, Database_URL } from "@env";
+import { WEB_CLIENT_ID } from "@env";
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -69,7 +69,7 @@ const Login = () => {
   };
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: WEB_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
     });
     getCurrentUser();
   }, []);
@@ -81,7 +81,7 @@ const Login = () => {
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo.data);
       const expoPushToken = await registerForPushNotificationsAsync();
-      await axios.post(Database_URL + "/users", {
+      await axios.post(process.env.EXPO_PUBLIC_DATABASE_URL + "/users", {
         googleId: userInfo.data.user.id,
         nombre: userInfo.data.user.givenName,
         apellido: userInfo.data.user.familyName,

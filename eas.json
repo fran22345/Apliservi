@@ -11,10 +11,18 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "DATABASE_URL": "@DATABASE_URL",
+        "URLWEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
+      }
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "DATABASE_URL": "@DATABASE_URL",
+        "URLWEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
+      }
     }
   },
   "submit": {

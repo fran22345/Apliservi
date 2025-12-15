@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Link } from "expo-router";
 
@@ -25,18 +24,18 @@ export default function ServiciosActivos() {
 
         // Traer usuario desde DB
         const userRes = await axios.get(
-          `${Database_URL}/users/${currentUser.user.id}`
+          `${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${currentUser.user.id}`
         );
         setUser(userRes.data);
 
         // Traer servicios activos
-        const servRes = await axios.get(`${Database_URL}/serviciosActivos`, {
+        const servRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/serviciosActivos`, {
           params: { userId: userRes.data.id },
         });
         setServicios(servRes.data || []);
 
         // Traer pedidos de disponibilidad
-        const availRes = await axios.get(`${Database_URL}/availability`, {
+        const availRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability`, {
           params: { userId: userRes.data.id },
         });
 

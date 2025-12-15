@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, StyleSheet, Pressable, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { Database_URL } from "@env";
 import axios from "axios";
 import { Rating } from "react-native-ratings";
 
@@ -22,7 +21,7 @@ export default function ServicioActivo() {
     const google = GoogleSignin.getCurrentUser();
     if (!google?.user?.id) return null;
 
-    const res = await axios.get(`${Database_URL}/users/${google.user.id}`);
+    const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${google.user.id}`);
     return res.data; // este es el que tiene el UUID real
   };
 
@@ -34,15 +33,15 @@ export default function ServicioActivo() {
         setBuyer(buyerData);
 
         // 2. Obtener servicio activo
-        const res = await axios.get(`${Database_URL}/servicioActivoBuyer/${id}`);
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/servicioActivoBuyer/${id}`);
         setServicio(res.data);
 
         // 3. Datos del profesional
-        const workerRes = await axios.get(`${Database_URL}/users/id/${res.data.userId}`);
+        const workerRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/users/id/${res.data.userId}`);
         setWorker(workerRes.data);
         
         // 4. Verificar si el comprador YA calificó este servicio
-        const scoreRes = await axios.get(`${Database_URL}/score/check`, {
+        const scoreRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/score/check`, {
           params: {
             buyerId: buyerData.id,
             payId: res.data.id
@@ -76,7 +75,7 @@ export default function ServicioActivo() {
           text: "Sí, enviar",
           onPress: async () => {
             try {
-              await axios.post(`${Database_URL}/scores`, {
+              await axios.post(`${process.env.EXPO_PUBLIC_DATABASE_URL}/scores`, {
                 userId: worker.id,      // profesional
                 buyerId: buyer.id,      // comprador (UUID REAL)
                 payId: servicio.id, // servicio finalizado

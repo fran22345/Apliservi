@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
-import { Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Link } from "expo-router";
 
@@ -17,7 +16,7 @@ export default function serviciosActivos() {
         if (!currentUser?.user?.id) return;
 
         // 1️⃣ Buscar el usuario en tu DB usando googleId
-        const userRes = await axios.get(`${Database_URL}/users/${currentUser.user.id}`);
+        const userRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${currentUser.user.id}`);
         const userDB = userRes.data;
 
         if (!userDB) {
@@ -28,7 +27,7 @@ export default function serviciosActivos() {
         setUser(userDB);
 
         // 2️⃣ Ahora sí pedimos los servicios con el UUID real
-        const response = await axios.get(`${Database_URL}/serviciosActivosBuyer`, {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/serviciosActivosBuyer`, {
           params: { idBuyer: userDB.id }
         });
 

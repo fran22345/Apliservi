@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Image, Pressable, Alert } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import axios from "axios";
 import { openBrowserAsync } from "expo-web-browser";
-import { WEB_CLIENT_ID, Database_URL } from "@env";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Rating } from "react-native-ratings";
 import { ScrollView } from "react-native";
@@ -25,7 +24,7 @@ const ViewCard = () => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const res = await axios.get(`${Database_URL}/services/${id}`);
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/services/${id}`);
         setService(res.data);
       } catch (err) {
         console.log(err);
@@ -40,7 +39,7 @@ const ViewCard = () => {
   // 2. LOAD USER FROM DB
   // ------------------------------
   useEffect(() => {
-    GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
+    GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID });
 
     const getCurrentUser = async () => {
       try {
@@ -50,7 +49,7 @@ const ViewCard = () => {
         const googleUser = currentUser.user;
 
         const response = await axios.get(
-          `${Database_URL}/users/${googleUser.id}`
+          `${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${googleUser.id}`
         );
 
         setUserDB(response.data);
@@ -72,7 +71,7 @@ const ViewCard = () => {
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(
-          `${Database_URL}/availability/check`,
+          `${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/check`,
           {
             params: {
               buyerId: userDB.id,
@@ -114,7 +113,7 @@ const ViewCard = () => {
     if (!userDB || !service) return;
 
     try {
-      const res = await axios.post(`${Database_URL}/availability/request`, {
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/request`, {
         providerId: service.User.id,
         buyerId: userDB.id,
         serviceId: service.id
@@ -143,7 +142,7 @@ const ViewCard = () => {
       };
 
       const response = await axios.post(
-        `${Database_URL}/crear-preferencia`,
+        `${process.env.EXPO_PUBLIC_DATABASE_URL}/crear-preferencia`,
         requestData
       );
 

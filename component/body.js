@@ -1,4 +1,3 @@
-import React from "react";
 import { StyleSheet } from "react-native";
 import { View, Dimensions } from "react-native";
 import Card from "./card";

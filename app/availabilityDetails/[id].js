@@ -2,7 +2,6 @@ import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import axios from "axios";
-import { Database_URL } from "@env";
 
 export default function AvailabilityDetails() {
   const { id } = useLocalSearchParams();
@@ -12,7 +11,7 @@ export default function AvailabilityDetails() {
 
     const fetchAvailability = async () => {
       try {
-        const res = await axios.get(`${Database_URL}/availability/${id}`);
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/${id}`);
         setAvailability(res.data);
       } catch (error) {
         console.log("Error:", error);
@@ -24,7 +23,7 @@ export default function AvailabilityDetails() {
 
   const updateStatus = async (status) => {
     try {
-      await axios.put(`${Database_URL}/availability/response/${id}`, { status });
+      await axios.put(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/response/${id}`, { status });
       Alert.alert("Listo", `Disponibilidad ${status}`);
       setAvailability({ ...availability, status });
     } catch (error) {

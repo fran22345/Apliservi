@@ -1,11 +1,9 @@
-import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { View, Dimensions, Image } from "react-native";
 import localImage from "../assets/AS.jpg";
 import { Link } from "expo-router";
 import { useState, useEffect } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { WEB_CLIENT_ID, Database_URL } from "@env";
 import axios from "axios";
 
 const { height } = Dimensions.get("window");
@@ -16,7 +14,7 @@ const Icon = () => {
 
 
   useEffect(() => {
-    GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
+    GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID});
 
     const getCurrentUser = async () => {
       const currentUser = GoogleSignin.getCurrentUser();
@@ -34,7 +32,7 @@ const Icon = () => {
 
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`${Database_URL}/notifRequest`, {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifRequest`, {
           params: { googleId: user.id },
         });
 

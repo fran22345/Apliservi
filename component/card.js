@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import axios from "axios";
@@ -8,13 +8,12 @@ const Card = () => {
 
   useEffect(() => {
     axios
-      .get("http://10.0.2.2:3000/services/")
+      .get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/services/`)
       .then((response) => {
         setDataState(response.data);
-        
+
       })
       .catch((error) => {
-        setError("User not found");
         console.error(error);
       });
   }, []);
@@ -28,7 +27,7 @@ const Card = () => {
             params: { id: item.id },
           }} asChild>
             <Pressable style={styles.item}>
-              <Text style={styles.text}>{item.nombre +": "+item.profesion}</Text>
+              <Text style={styles.text}>{item.nombre + ": " + item.profesion}</Text>
               <Text style={styles.puntuacion}>{item.puntuacion}</Text>
             </Pressable>
           </Link>
@@ -61,12 +60,12 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: "bold",
-  
+
   },
   puntuacion: {
 
     fontSize: 20,
-    color: "gray", 
+    color: "gray",
     textAlign: "right"
   },
 });

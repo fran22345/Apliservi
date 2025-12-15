@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, StyleSheet, Pressable, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import { Database_URL } from "@env";
 import axios from "axios";
 
 export default function ServicioActivo() {
@@ -14,8 +13,8 @@ export default function ServicioActivo() {
   useEffect(() => {
     const fetchServicio = async () => {
       try {
-        const res = await axios.get(`${Database_URL}/servicioActivoUser/${id}`);
-        const buyerRes = await axios.get(`${Database_URL}/users/buyerid/${res.data.idBuyer}`);
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/servicioActivoUser/${id}`);
+        const buyerRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/users/buyerid/${res.data.idBuyer}`);
           
         setBuyer(buyerRes.data);
         setServicio(res.data);
@@ -39,7 +38,7 @@ export default function ServicioActivo() {
           text: "Sí, concluir",
           onPress: async () => {
             try {
-              await axios.put(`${Database_URL}/servicioConcluido`, {
+              await axios.put(`${process.env.EXPO_PUBLIC_DATABASE_URL}/servicioConcluido`, {
                 servId: servicio.id,
                 buyerId: buyer.id
               });
