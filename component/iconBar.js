@@ -14,7 +14,7 @@ const Icon = () => {
 
 
   useEffect(() => {
-    GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID});
+    GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID });
 
     const getCurrentUser = async () => {
       const currentUser = GoogleSignin.getCurrentUser();
@@ -36,7 +36,7 @@ const Icon = () => {
           params: { googleId: user.id },
         });
 
-        if (!response.data.title) {
+        if (response.data.length > 0) {
           setNotifications(true);
         } else {
           setNotifications(false);
@@ -47,7 +47,7 @@ const Icon = () => {
     };
 
     fetchNotifications();
-  }, [user]); 
+  }, [user]);
 
 
 

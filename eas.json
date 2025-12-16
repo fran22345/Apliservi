@@ -13,15 +13,15 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "DATABASE_URL": "@DATABASE_URL",
-        "URLWEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
+        "EXPO_PUBLIC_DATABASE_URL": "@DATABASE_URL",
+        "EXPO_PUBLIC_WEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
       }
     },
     "production": {
       "channel": "production",
       "env": {
-        "DATABASE_URL": "@DATABASE_URL",
-        "URLWEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
+        "EXPO_PUBLIC_DATABASE_URL": "@DATABASE_URL",
+        "EXPO_PUBLIC_WEB_CLIENT_ID": "@URLWEB_CLIENT_ID"
       }
     }
   },
