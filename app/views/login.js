@@ -12,7 +12,8 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 
 /* ----------------------------------------------------
-   PUSH NOTIFICATIONS
+
+PUSH NOTIFICATIONS
 ---------------------------------------------------- */
 async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
@@ -25,7 +26,7 @@ async function registerForPushNotificationsAsync() {
   }
 
   if (!Device.isDevice) {
-    console.log("Push notifications requieren dispositivo físico");
+    console.log("Push notifications requiere dispositivo físico");
     return null;
   }
 
@@ -62,10 +63,19 @@ async function registerForPushNotificationsAsync() {
 }
 
 /* ----------------------------------------------------
-   LOGIN
+LOGIN
 ---------------------------------------------------- */
 const Login = () => {
   const [user, setUser] = useState(null);
+
+  const checkUser = async () => {
+    try {
+      const userInfo = await GoogleSignin.signInSilently();
+      setUser(userInfo.user);
+    } catch (error) {
+      console.log("No hay sesión activa");
+    }
+  };
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -78,11 +88,12 @@ const Login = () => {
       await GoogleSignin.hasPlayServices();
 
       const result = await GoogleSignin.signIn();
-      const googleUser = result.user;
+
+      const googleUser = result.data.user;
 
       setUser(googleUser);
 
-      const expoPushToken = await registerForPushNotificationsAsync();
+      //const expoPushToken = await registerForPushNotificationsAsync();
 
       await axios.post(
         `${process.env.EXPO_PUBLIC_DATABASE_URL}/users`,
@@ -92,7 +103,7 @@ const Login = () => {
           apellido: googleUser.familyName,
           linkFoto: googleUser.photo,
           email: googleUser.email,
-          expoPushToken,
+
         }
       );
 
