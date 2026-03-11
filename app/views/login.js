@@ -71,12 +71,6 @@ const Login = () => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
     });
-
-    const currentUser = GoogleSignin.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser.user);
-      router.replace("/views/homeScreen");
-    }
   }, []);
 
   const signIn = async () => {
