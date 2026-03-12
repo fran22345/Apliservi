@@ -5,6 +5,14 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Notifications from "expo-notifications";
 import Botombar from "../component/botombar";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 export default function Layout() {
   const segments = useSegments();
   const router = useRouter();
