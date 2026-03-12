@@ -96,7 +96,7 @@ const Login = () => {
 
       setUser(googleUser);
 
-      //const expoPushToken = await registerForPushNotificationsAsync();
+      const expoPushToken = await registerForPushNotificationsAsync();
 
       await axios.post(
         `${process.env.EXPO_PUBLIC_DATABASE_URL}/users`,
@@ -106,7 +106,7 @@ const Login = () => {
           apellido: googleUser.familyName,
           linkFoto: googleUser.photo,
           email: googleUser.email,
-
+          expoPushToken,
         }
       );
 
