@@ -52,9 +52,6 @@ export default function Layout() {
     return <Redirect href="/views/login" />;
   }
 
-  // ---------------------------------------------
-  // CONTENIDO DE LA APP
-  // ---------------------------------------------
   return (
     <View style={{ flex: 1 }}>
       <Slot />
