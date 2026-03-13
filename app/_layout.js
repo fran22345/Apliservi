@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Slot, Redirect, useSegments } from "expo-router";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-
+import * as Notifications from "expo-notifications";
 import Botombar from "../component/botombar";
 import useNotificationNavigation from "../app/hooks/useNotificationNavigation";
 
