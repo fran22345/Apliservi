@@ -12,7 +12,6 @@ const ViewCard = () => {
 
   const [service, setService] = useState(null);
   const [userDB, setUserDB] = useState(null);
-
   const [availabilityId, setAvailabilityId] = useState(null);
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(null); // null, true, false

@@ -8,7 +8,8 @@ import useNotificationNavigation from "../app/hooks/useNotificationNavigation";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),

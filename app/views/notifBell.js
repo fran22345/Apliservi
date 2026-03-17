@@ -7,26 +7,27 @@ export default function NotifBell() {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const fetchNotifications = async () => {
+        try {
+            const currentUser = GoogleSignin.getCurrentUser();
+
+
+            if (!currentUser?.user?.id) return;
+
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifRequest`, {
+                params: { googleId: currentUser.user.id },
+            });
+
+            setNotifications(response.data || []);
+        } catch (error) {
+            console.log("Error al obtener notificaciones:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const currentUser = GoogleSignin.getCurrentUser();
-                if (!currentUser?.user?.id) return;
-
-                const response = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/notifRequest`, {
-                    params: { googleId: currentUser.user.id },
-                });
-
-                setNotifications(response.data || []);
-            } catch (error) {
-                console.log("Error al obtener notificaciones:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchNotifications();
-    }, [handlePress]);
+    }, []);
 
     const handlePress = async (event) => {
         try {
@@ -58,9 +59,10 @@ export default function NotifBell() {
         );
     }
 
+
     const renderedCards = notifications.map((notif, index) => (
 
-        <View key={index} style={styles.card}>
+        <View key={notif.id} style={styles.card}>
             <Pressable style={styles.deleteButton} onPress={() => handlePress(notif.id)}>
                 <Text style={styles.deleteText}>X</Text>
             </Pressable>
@@ -146,12 +148,12 @@ const styles = StyleSheet.create({
         padding: 10,
         marginVertical: 8,
         borderRadius: 10,
-        position: "relative", // permite posicionar el botón dentro
+        position: "relative", 
     },
     deleteButton: {
         position: "absolute",
-        top: 30,
-        left: 350,
+        right: 10,
+        top: 10,
         padding: 5,
         borderRadius: 5,
         backgroundColor: "#f44", // rojo claro

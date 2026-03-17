@@ -16,7 +16,7 @@ export default function ServicioActivo() {
   const [alreadyRated, setAlreadyRated] = useState(false);
   const [existingScore, setExistingScore] = useState(null);
 
-  // Obtiene usuario desde tu DB usando el googleId
+  // Obtiene usuario desde DB usando el googleId
   const getLoggedUser = async () => {
     const google = GoogleSignin.getCurrentUser();
     if (!google?.user?.id) return null;

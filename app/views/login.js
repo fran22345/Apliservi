@@ -10,6 +10,7 @@ import * as Device from "expo-device";
 import axios from "axios";
 import Constants from "expo-constants";
 import { router } from "expo-router";
+import { Rating } from "react-native-ratings";
 
 /* ----------------------------------------------------
 
@@ -67,13 +68,24 @@ LOGIN
 ---------------------------------------------------- */
 const Login = () => {
   const [user, setUser] = useState(null);
+  const [score, setScore] = useState(0)
 
   const checkUser = async () => {
     try {
       const userInfo = await GoogleSignin.signInSilently();
-      setUser(userInfo.user);
+
+      setUser(userInfo.data.user);
     } catch (error) {
       console.log("No hay sesión activa");
+    }
+  };
+
+  const dbUser = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/scores/${user.id}`);
+      setScore(res.data.value);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -83,8 +95,13 @@ const Login = () => {
     });
 
     checkUser();
-
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      dbUser();
+    }
+  }, [user]);
 
   const signIn = async () => {
     try {
@@ -120,10 +137,17 @@ const Login = () => {
     }
   };
 
+  
   if (user) {
     return (
       <View style={styles.container}>
         <View style={styles.userInfoContainer}>
+          <Rating
+            readonly
+            startingValue={score}
+            imageSize={28}
+            style={{ marginVertical: 8 }}
+          />
           <Text style={styles.userInfoText}>{user.name}</Text>
           <Text style={styles.userInfoText}>{user.email}</Text>
           <Image source={{ uri: user.photo }} style={styles.userInfoImage} />

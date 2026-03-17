@@ -15,6 +15,21 @@
             "name": "dpg-d67np0p4tr6s739gg9j0-a",
             "database": "apliserviposgressql_dm3c",
             "username": "apliserviposgressql_dm3c_user"
+        },
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "dpg-d6s592dm5p6s73akhlb0-a.oregon-postgres.render.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "apliserviposgresql2",
+            "database": "apliserviposgresql2",
+            "username": "apliserviposgresql2_user"
         }
     ]
 }
