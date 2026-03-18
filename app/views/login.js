@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, Button, Platform } from "react-native";
+import { View, Text, Image, StyleSheet, Button, Platform, TextInput, ActivityIndicator } from "react-native";
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -13,7 +13,6 @@ import { router } from "expo-router";
 import { Rating } from "react-native-ratings";
 
 /* ----------------------------------------------------
-
 PUSH NOTIFICATIONS
 ---------------------------------------------------- */
 async function registerForPushNotificationsAsync() {
@@ -21,15 +20,10 @@ async function registerForPushNotificationsAsync() {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
       importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
     });
   }
 
-  if (!Device.isDevice) {
-    console.log("Push notifications requiere dispositivo físico");
-    return null;
-  }
+  if (!Device.isDevice) return null;
 
   const { status: existingStatus } =
     await Notifications.getPermissionsAsync();
@@ -40,25 +34,16 @@ async function registerForPushNotificationsAsync() {
     finalStatus = status;
   }
 
-  if (finalStatus !== "granted") {
-    console.log("Permisos de notificaciones no concedidos");
-    return null;
-  }
+  if (finalStatus !== "granted") return null;
 
   const projectId =
     Constants?.expoConfig?.extra?.eas?.projectId ??
     Constants?.easConfig?.projectId;
 
-  if (!projectId) {
-    console.log("Project ID no encontrado");
-    return null;
-  }
-
   try {
     const token = await Notifications.getExpoPushTokenAsync({ projectId });
     return token.data;
-  } catch (err) {
-    console.log("Error obteniendo push token:", err);
+  } catch {
     return null;
   }
 }
@@ -67,25 +52,62 @@ async function registerForPushNotificationsAsync() {
 LOGIN
 ---------------------------------------------------- */
 const Login = () => {
-  const [user, setUser] = useState(null);
-  const [score, setScore] = useState(0)
+  const [authUser, setAuthUser] = useState(null); // Google
+  const [dbUser, setDbUser] = useState(null);     // Backend
+  const [score, setScore] = useState(0);
+  const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+  });
 
-  const checkUser = async () => {
+  /* ---------------- GET USER DB ---------------- */
+  const getDbUser = async (googleId) => {
     try {
-      const userInfo = await GoogleSignin.signInSilently();
+      const res = await axios.get(
+        `${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${googleId}`
+      );
+      setDbUser(res.data);
 
-      setUser(userInfo.data.user);
+      // cargar form con datos reales
+      setForm({
+        nombre: res.data.nombre,
+        apellido: res.data.apellido,
+        email: res.data.email,
+      });
     } catch (error) {
-      console.log("No hay sesión activa");
+      console.log(error);
     }
   };
 
-  const dbUser = async () => {
+  /* ---------------- SCORE ---------------- */
+  const getScore = async (googleId) => {
     try {
-      const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/scores/${user.id}`);
-      setScore(res.data.value);
+      const res = await axios.get(
+        `${process.env.EXPO_PUBLIC_DATABASE_URL}/scores/${googleId}`
+      );
+      setScore(res.data.value || 0);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  /* ---------------- CHECK SESSION ---------------- */
+  const checkUser = async () => {
+    try {
+      const userInfo = await GoogleSignin.signInSilently();
+      const googleUser = userInfo.data.user;
+
+      setAuthUser(googleUser);
+
+      await getDbUser(googleUser.id);
+      await getScore(googleUser.id);
+    } catch {
+      console.log("No hay sesión activa");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,21 +119,45 @@ const Login = () => {
     checkUser();
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      dbUser();
-    }
-  }, [user]);
+  /* ---------------- HANDLE INPUT ---------------- */
+  const handleChange = (name, value) => {
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  /* ---------------- UPDATE USER ---------------- */
+  const handleUserUpdate = async () => {
+    try {
+      await axios.patch(
+        `${process.env.EXPO_PUBLIC_DATABASE_URL}/users`,
+        {
+          googleId: authUser.id,
+          nombre: form.nombre,
+          apellido: form.apellido,
+          email: form.email,
+        }
+      );
+
+      // refrescar datos reales
+      await getDbUser(authUser.id);
+
+      setEditMode(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  /* ---------------- LOGIN ---------------- */
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
 
       const result = await GoogleSignin.signIn();
-
       const googleUser = result.data.user;
 
-      setUser(googleUser);
+      setAuthUser(googleUser);
 
       const expoPushToken = await registerForPushNotificationsAsync();
 
@@ -127,18 +173,26 @@ const Login = () => {
         }
       );
 
+      await getDbUser(googleUser.id);
+      await getScore(googleUser.id);
+
       router.replace("/views/homeScreen");
     } catch (error) {
       console.log("Error en login:", error);
-
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
-      if (error.code === statusCodes.IN_PROGRESS) return;
-      if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) return;
     }
   };
 
-  
-  if (user) {
+  /* ---------------- UI ---------------- */
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (dbUser) {
     return (
       <View style={styles.container}>
         <View style={styles.userInfoContainer}>
@@ -148,16 +202,48 @@ const Login = () => {
             imageSize={28}
             style={{ marginVertical: 8 }}
           />
-          <Text style={styles.userInfoText}>{user.name}</Text>
-          <Text style={styles.userInfoText}>{user.email}</Text>
-          <Image source={{ uri: user.photo }} style={styles.userInfoImage} />
+
+          <Image source={{ uri: dbUser.linkFoto }} style={styles.userInfoImage} />
+
+          {editMode ? (
+            <>
+              <TextInput
+                value={form.nombre}
+                onChangeText={(t) => handleChange("nombre", t)}
+                style={styles.input}
+                placeholder="Nombre"
+              />
+              <TextInput
+                value={form.apellido}
+                onChangeText={(t) => handleChange("apellido", t)}
+                style={styles.input}
+                placeholder="Apellido"
+              />
+              <TextInput
+                value={form.email}
+                onChangeText={(t) => handleChange("email", t)}
+                style={styles.input}
+                placeholder="Email"
+              />
+
+              <Button title="Guardar" onPress={handleUserUpdate} />
+              <Button title="Cancelar" onPress={() => setEditMode(false)} />
+            </>
+          ) : (
+            <>
+              <Text style={styles.userInfoText}>{dbUser.nombre}{" "}{dbUser.apellido}</Text>
+              <Text style={styles.userInfoText}>{dbUser.email}</Text>
+
+              <Button title="Editar" onPress={() => setEditMode(true)} />
+            </>
+          )}
 
           <Button
             title="Cerrar sesión"
             onPress={async () => {
-              await GoogleSignin.revokeAccess();
               await GoogleSignin.signOut();
-              setUser(null);
+              setAuthUser(null);
+              setDbUser(null);
             }}
           />
         </View>
@@ -179,29 +265,23 @@ const Login = () => {
 
 export default Login;
 
-/* ----------------------------------------------------
-   STYLES
----------------------------------------------------- */
+/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
   userInfoContainer: {
     borderWidth: 1,
-    borderColor: "#000",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
   },
-  userInfoText: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  userInfoImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  userInfoText: { fontSize: 18, marginBottom: 10 },
+  userInfoImage: { width: 100, height: 100, borderRadius: 50 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginVertical: 5,
+    width: 200,
+    borderRadius: 5,
   },
 });

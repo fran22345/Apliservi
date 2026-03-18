@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import axios from "axios";
+import { ActivityIndicator, View } from "react-native";
 
 const Card = () => {
   const [dataState, setDataState] = useState([]);
@@ -33,7 +34,9 @@ const Card = () => {
           </Link>
         ))
       ) : (
-        <Text style={styles.text}>Cargando...</Text>
+        <View style={styles.container}>
+          <ActivityIndicator size="large" />
+        </View>
       )}
     </>
   );
@@ -68,6 +71,7 @@ const styles = StyleSheet.create({
     color: "gray",
     textAlign: "right"
   },
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
 
 export default Card;
