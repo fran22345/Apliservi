@@ -1,26 +1,44 @@
-import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useEffect } from "react";
+import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 
 export default function useNotificationNavigation() {
-  const router = useRouter();
+  const lastNotificationResponse =
+    Notifications.useLastNotificationResponse();
 
   useEffect(() => {
-    const sub =
-      Notifications.addNotificationResponseReceivedListener(response => {
+    console.log("HOOK NOTIFICATION ACTIVO");
+
+    //  App abierta / background
+    const subscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
         const data = response.notification.request.content.data;
 
-        if (!data) return;
+        console.log("TOUCH NOTIFICATION:", data);
 
-        if (data.type === 'service') {
-          router.push(`/services/${data.id}`);
-        }
-
-        if (data.type === 'prestacion') {
-          router.push(`/prestaciones/${data.id}`);
+        if (data?.route) {
+          setTimeout(() => {
+            router.replace(data.route);
+          }, 100);
         }
       });
 
-    return () => sub.remove();
+    return () => subscription.remove();
   }, []);
+
+  //  App abierta desde notificación (ANTES cerrada)
+  useEffect(() => {
+    if (lastNotificationResponse) {
+      const data =
+        lastNotificationResponse.notification.request.content.data;
+
+      console.log("APP OPEN FROM NOTIFICATION:", data);
+
+      if (data?.route) {
+        setTimeout(() => {
+          router.replace(data.route);
+        }, 100);
+      }
+    }
+  }, [lastNotificationResponse]);
 }
