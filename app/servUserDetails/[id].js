@@ -10,6 +10,7 @@ export default function ServicioActivo() {
   const [error, setError] = useState(null);
   const [buyer, setBuyer] = useState(null);
 
+
   useEffect(() => {
     const fetchServicio = async () => {
       try {
@@ -46,7 +47,6 @@ export default function ServicioActivo() {
               Alert.alert(
                 "Servicio concluido",
                 "El cliente ha sido notificado.",
-                [{ text: "OK", onPress: () => router.replace("/") }]
               );
 
             } catch (err) {

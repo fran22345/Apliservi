@@ -6,12 +6,12 @@ import axios from "axios";
 export default function AvailabilityDetails() {
   const { id } = useLocalSearchParams();
   const [availability, setAvailability] = useState(null);
-
+  
   useEffect(() => {
 
     const fetchAvailability = async () => {
       try {
-        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/${id}`);
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/${id}`);        
         setAvailability(res.data);
       } catch (error) {
         console.log("Error:", error);

@@ -1,6 +1,6 @@
 import {
   View,
-  ScrollView,
+
   StatusBar,
   StyleSheet,
 } from "react-native";
@@ -11,17 +11,16 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Icon />
-      <ScrollView>
+    
         <Body />
         <StatusBar />
-      </ScrollView>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
