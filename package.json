@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "dev": "expo start --dev-client"
+    "dev": "expo start --dev-client",
+    "preview":"npx eas build -p android --profile preview"
   },
   "dependencies": {
     "@react-native-firebase/app": "^20.5.0",
