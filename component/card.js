@@ -1,77 +1,155 @@
-import { useEffect, useState } from "react";
-import { Text, StyleSheet, Pressable } from "react-native";
+import { useEffect, useState, useMemo } from "react";
+import {
+  Text,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  View,
+  ActivityIndicator,
+  FlatList,
+} from "react-native";
 import { Link } from "expo-router";
 import axios from "axios";
-import { ActivityIndicator, View } from "react-native";
 
-const Card = () => {
+export default function Card() {
   const [dataState, setDataState] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/services/`)
-      .then((response) => {
-        setDataState(response.data);
+    const fetchServices = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.EXPO_PUBLIC_DATABASE_URL}/services/`
+        );
+        
+        //  Convertir puntuacion a número
+        const normalized = res.data.map((item) => ({
+          ...item,
+          puntuacion: item.puntuacion
+            ? parseFloat(item.puntuacion)
+            : null,
+        }));
 
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+        setDataState(normalized);
+      } catch (error) {
+        console.error("Error trayendo servicios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
   }, []);
 
-  return (
-    <>
-      {dataState.length > 0 ? (
-        dataState.map((item, index) => (
-          <Link key={index} href={{
-            pathname: '/details/[id]',
-            params: { id: item.id },
-          }} asChild>
-            <Pressable style={styles.item}>
-              <Text style={styles.text}>{item.nombre + ": " + item.profesion}</Text>
-              <Text style={styles.puntuacion}>{item.puntuacion}</Text>
-            </Pressable>
-          </Link>
-        ))
-      ) : (
-        <View style={styles.container}>
-          <ActivityIndicator size="large" />
+  //  FILTRO
+  const filteredData = useMemo(() => {
+    return dataState.filter((item) =>
+      `${item.nombre} ${item.profesion}`
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [search, dataState]);
+
+  const renderItem = ({ item }) => (
+    <Link
+      href={{
+        pathname: "/details/[id]",
+        params: { id: item.id.toString() },
+      }}
+      asChild
+    >
+      <Pressable style={styles.item}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.text}>
+            {item.nombre} - {item.profesion}
+          </Text>
+
+          <Text style={styles.sub}>
+            {item.puntuacion
+              ? `⭐ ${item.puntuacion.toFixed(1)}`
+              : "Sin reviews"}
+          </Text>
         </View>
-      )}
-    </>
+      </Pressable>
+    </Link>
   );
-};
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+        <Text>Cargando servicios...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1 }}>
+   
+      <TextInput
+        placeholder="Buscar servicios..."
+        value={search}
+        onChangeText={setSearch}
+        style={styles.input}
+      />
+
+      {filteredData.length === 0 ? (
+        <Text style={styles.empty}>No hay resultados</Text>
+      ) : (
+        <FlatList
+          data={filteredData}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  item: {
-    marginTop: 5,
-    marginRight: 10,
-    marginBottom: 5,
-    marginLeft: 10,
-    borderRadius: 4,
+  input: {
+    backgroundColor: "#fff",
     padding: 10,
+    borderRadius: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  list: {
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
+  item: {
+    marginBottom: 10,
+    borderRadius: 12,
+    padding: 15,
     backgroundColor: "#fff",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 0,
-    elevation: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   text: {
     fontSize: 16,
     fontWeight: "bold",
-
+    color: "#333",
   },
-  puntuacion: {
-
-    fontSize: 20,
-    color: "gray",
-    textAlign: "right"
+  sub: {
+    marginTop: 5,
+    fontSize: 14,
+    color: "#777",
   },
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  empty: {
+    textAlign: "center",
+    marginTop: 20,
+    color: "#777",
+    fontSize: 16,
+  },
 });
-
-export default Card;

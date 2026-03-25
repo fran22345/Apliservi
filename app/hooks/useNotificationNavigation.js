@@ -7,7 +7,6 @@ export default function useNotificationNavigation() {
     Notifications.useLastNotificationResponse();
 
   useEffect(() => {
-    console.log("HOOK NOTIFICATION ACTIVO");
 
     //  App abierta / background
     const subscription =

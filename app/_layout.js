@@ -5,6 +5,8 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Notifications from "expo-notifications";
 import Botombar from "../component/botombar";
 import useNotificationNavigation from "../app/hooks/useNotificationNavigation";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -62,9 +64,14 @@ export default function Layout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Slot />
+    <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+      <StatusBar style="dark" translucent={false} />
+
+      <View style={{ flex: 1 }}>
+        <Slot />
+      </View>
+
       <Botombar />
-    </View>
+    </SafeAreaView>
   );
 }
