@@ -6,12 +6,19 @@ import axios from "axios";
 export default function AvailabilityDetails() {
   const { id } = useLocalSearchParams();
   const [availability, setAvailability] = useState(null);
-  
+  const [buyer, setBuyer] = useState(null)
+  const [services, setService] = useState(null)
+
   useEffect(() => {
 
     const fetchAvailability = async () => {
       try {
-        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/${id}`);        
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/${id}`);
+        const buyerRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/users/buyerid/${res.data.buyerId}`);
+        const servRes = await axios.get(`${process.env.EXPO_PUBLIC_DATABASE_URL}/services/${res.data.serviceId}`);
+
+        setService(servRes)
+        setBuyer(buyerRes.data);
         setAvailability(res.data);
       } catch (error) {
         console.log("Error:", error);
@@ -23,6 +30,7 @@ export default function AvailabilityDetails() {
 
   const updateStatus = async (status) => {
     try {
+
       await axios.put(`${process.env.EXPO_PUBLIC_DATABASE_URL}/availability/response/${id}`, { status });
       Alert.alert("Listo", `Disponibilidad ${status}`);
       setAvailability({ ...availability, status });
@@ -37,10 +45,10 @@ export default function AvailabilityDetails() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Consulta de Disponibilidad" }} />
 
-      <Text style={styles.title}>Consulta #{availability.id}</Text>
+      <Text style={styles.title}>Consulta </Text>
 
-      <Text style={styles.text}>Comprador: {availability.buyerId}</Text>
-      <Text style={styles.text}>Servicio ID: {availability.serviceId}</Text>
+      <Text style={styles.text}>Comprador: {buyer.nombre}{buyer.apellido}</Text>
+      <Text style={styles.text}>Servicio: {services.data.description}</Text>
       <Text style={styles.status}>Estado: {availability.status}</Text>
 
       {availability.status === "pending" && (

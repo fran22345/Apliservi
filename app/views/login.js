@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, Button, Platform, TextInput, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Button,
+  Platform,
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
 import {
   GoogleSignin,
   GoogleSigninButton,
-  statusCodes,
 } from "@react-native-google-signin/google-signin";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
@@ -12,9 +20,7 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 import { Rating } from "react-native-ratings";
 
-/* ----------------------------------------------------
-PUSH NOTIFICATIONS
----------------------------------------------------- */
+/* ---------------- PUSH ---------------- */
 async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
@@ -48,12 +54,9 @@ async function registerForPushNotificationsAsync() {
   }
 }
 
-/* ----------------------------------------------------
-LOGIN
----------------------------------------------------- */
 const Login = () => {
-  const [authUser, setAuthUser] = useState(null); // Google
-  const [dbUser, setDbUser] = useState(null);     // Backend
+  const [authUser, setAuthUser] = useState(null);
+  const [dbUser, setDbUser] = useState(null);
   const [score, setScore] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -63,15 +66,12 @@ const Login = () => {
     email: "",
   });
 
-  /* ---------------- GET USER DB ---------------- */
   const getDbUser = async (googleId) => {
     try {
       const res = await axios.get(
         `${process.env.EXPO_PUBLIC_DATABASE_URL}/users/${googleId}`
       );
       setDbUser(res.data);
-
-      // cargar form con datos reales
       setForm({
         nombre: res.data.nombre,
         apellido: res.data.apellido,
@@ -82,7 +82,6 @@ const Login = () => {
     }
   };
 
-  /* ---------------- SCORE ---------------- */
   const getScore = async (googleId) => {
     try {
       const res = await axios.get(
@@ -94,7 +93,6 @@ const Login = () => {
     }
   };
 
-  /* ---------------- CHECK SESSION ---------------- */
   const checkUser = async () => {
     try {
       const userInfo = await GoogleSignin.signInSilently();
@@ -119,7 +117,6 @@ const Login = () => {
     checkUser();
   }, []);
 
-  /* ---------------- HANDLE INPUT ---------------- */
   const handleChange = (name, value) => {
     setForm((prev) => ({
       ...prev,
@@ -127,7 +124,6 @@ const Login = () => {
     }));
   };
 
-  /* ---------------- UPDATE USER ---------------- */
   const handleUserUpdate = async () => {
     try {
       await axios.patch(
@@ -140,16 +136,13 @@ const Login = () => {
         }
       );
 
-      // refrescar datos reales
       await getDbUser(authUser.id);
-
       setEditMode(false);
     } catch (error) {
       console.log(error);
     }
   };
 
-  /* ---------------- LOGIN ---------------- */
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -200,10 +193,13 @@ const Login = () => {
             readonly
             startingValue={score}
             imageSize={28}
-            style={{ marginVertical: 8 }}
+            style={{ marginVertical: 10 }}
           />
 
-          <Image source={{ uri: dbUser.linkFoto }} style={styles.userInfoImage} />
+          <Image
+            source={{ uri: dbUser.linkFoto }}
+            style={styles.userInfoImage}
+          />
 
           {editMode ? (
             <>
@@ -226,26 +222,35 @@ const Login = () => {
                 placeholder="Email"
               />
 
-              <Button title="Guardar" onPress={handleUserUpdate} />
-              <Button title="Cancelar" onPress={() => setEditMode(false)} />
+              <View style={styles.buttonContainer}>
+                <Button title="Guardar" onPress={handleUserUpdate} />
+                <Button title="Cancelar" onPress={() => setEditMode(false)} />
+              </View>
             </>
           ) : (
             <>
-              <Text style={styles.userInfoText}>{dbUser.nombre}{" "}{dbUser.apellido}</Text>
+              <Text style={styles.userName}>
+                {dbUser.nombre} {dbUser.apellido}
+              </Text>
+
               <Text style={styles.userInfoText}>{dbUser.email}</Text>
 
-              <Button title="Editar" onPress={() => setEditMode(true)} />
+              <View style={styles.buttonContainer}>
+                <Button title="Editar" onPress={() => setEditMode(true)} />
+              </View>
             </>
           )}
 
-          <Button
-            title="Cerrar sesión"
-            onPress={async () => {
-              await GoogleSignin.signOut();
-              setAuthUser(null);
-              setDbUser(null);
-            }}
-          />
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Cerrar sesión"
+              onPress={async () => {
+                await GoogleSignin.signOut();
+                setAuthUser(null);
+                setDbUser(null);
+              }}
+            />
+          </View>
         </View>
       </View>
     );
@@ -253,12 +258,14 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <GoogleSigninButton
-        style={{ width: 192, height: 48 }}
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
-        onPress={signIn}
-      />
+      <View style={styles.loginContainer}>
+        <GoogleSigninButton
+          style={{ width: 220, height: 50 }}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={signIn}
+        />
+      </View>
     </View>
   );
 };
@@ -266,22 +273,65 @@ const Login = () => {
 export default Login;
 
 /* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  userInfoContainer: {
-    borderWidth: 1,
-    padding: 20,
-    borderRadius: 10,
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
-  userInfoText: { fontSize: 18, marginBottom: 10 },
-  userInfoImage: { width: 100, height: 100, borderRadius: 50 },
+
+  userInfoContainer: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+
+  userInfoImage: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    marginBottom: 10,
+  },
+
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+
+  userInfoText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 10,
+  },
+
   input: {
+    width: "100%",
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
-    marginVertical: 5,
-    width: 200,
-    borderRadius: 5,
+    borderColor: "#ddd",
+    padding: 10,
+    marginVertical: 6,
+    borderRadius: 8,
+  },
+
+  buttonContainer: {
+    width: "100%",
+    marginTop: 10,
+    gap: 8,
+  },
+
+  loginContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
